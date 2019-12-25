@@ -36,9 +36,9 @@ def main(argv):
 				#	If the length has increased the paste is unique since a set has no duplicate entries
 				if len(paste_list) > length:
 					
-					#	Add the pastes url to found_keywords if it contains keywords
+					#	Add the pastes url to found_keywords if it match the regex
 					raw_paste = raw_url+paste
-					found_keywords = find_keywords(raw_paste, found_keywords, keywords)
+					found_keywords = find_regex(raw_paste, found_keywords, regex_proxie)
 
 				else:
 
@@ -105,7 +105,7 @@ def write_out(found_keywords, append, file_name):
 			f = open(file_name, 'w')
 
 		for paste in found_keywords:
-			f.write(paste)
+			f.write(paste + "\n")
 		print("\n")
 	else:
 		print("\n\nNo relevant pastes found, exiting\n\n")
@@ -121,17 +121,6 @@ def find_new_pastes(root_html):
 			new_pastes.append(str(li.find('a').get('href')).replace("/", ""))
 
 	return new_pastes
-
-def find_keywords(raw_url, found_keywords, keywords):
-	paste = fetch_page(raw_url)
-
-	#	Todo: Add in functionality to rank hit based on how many of the keywords it contains
-	for keyword in keywords:
-		if paste.find(keyword) != -1:
-			found_keywords.append("found " + keyword + " in " + raw_url + "\n")
-			break
-
-	return found_keywords
 	
 def find_regex(raw_url, found_keywords, regex):
 	found_keywords += re.findall(regex, fetch_page(raw_url))
