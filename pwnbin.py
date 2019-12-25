@@ -15,7 +15,7 @@ def main(argv):
 	start_time								= datetime.datetime.now()
 	regex_proxie 							= '\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b:\\d{2,5}'
 	main_proxy 								= ""
-	file_name, keywords, append, run_time, match_total, crawl_total, main_proxy = initialize_options(argv)
+	file_name, append, run_time, match_total, crawl_total, main_proxy = initialize_options(argv)
 
 	print(f"Crawling {root_url} Press ctrl+c to save file to {file_name}")
 
@@ -46,7 +46,7 @@ def main(argv):
 					time_out = True
 
 			# Enter the timeout 
-			time.sleep(60)
+			time.sleep(10)
 
 			sys.stdout.write("\rCrawled total of %d Pastes, Keyword matches %d" % (len(paste_list), len(found_proxies)))
 			sys.stdout.flush()
@@ -92,7 +92,7 @@ def main(argv):
 		print(f"Timeout")
 		write_out(found_proxies, append, file_name)
 	except requests.ProxyError as err:
-		print(f"Timeout")
+		print(f"ProxyError")
 		write_out(found_proxies, append, file_name)
 
 
@@ -137,7 +137,6 @@ def fetch_page(page, proxy):
 	return requests.get(page, timeout = 30, proxies=proxyDict).text
 
 def initialize_options(argv):
-	keywords 			= ['ssh', 'pass', 'key', 'token']
 	file_name 			= 'log.txt'
 	append 				= False
 	run_time 			= 0
@@ -146,7 +145,7 @@ def initialize_options(argv):
 	main_proxy			= "127.0.0.1"
 
 	try:
-		opts, args = getopt.getopt(argv,"h:k:o:t:n:m:a:p:")
+		opts, args = getopt.getopt(argv,"h:o:t:n:m:a:p:")
 	except getopt.GetoptError:
 		print('pwnbin.py -k <keyword1>,<keyword2>,<keyword3>..... -o <outputfile>')
 		sys.exit(2)
@@ -158,8 +157,6 @@ def initialize_options(argv):
 			sys.exit()
 		elif opt == '-a':
 			append = True
-		elif opt == "-k":
-			keywords = set(arg.split(","))
 		elif opt == "-p":
 			main_proxy = arg
 		elif opt == "-o":
@@ -184,7 +181,7 @@ def initialize_options(argv):
 				print("Number of total crawled pastes must be an integer.")
 				sys.exit()
 
-	return file_name, keywords, append, run_time, match_total, crawl_total, main_proxy
+	return file_name, append, run_time, match_total, crawl_total, main_proxy
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
