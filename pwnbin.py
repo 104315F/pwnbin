@@ -17,7 +17,7 @@ def main(argv):
 	start_time								= datetime.datetime.now()
 	file_name, keywords, append, run_time, match_total, crawl_total = initialize_options(argv)
 
-	print "\nCrawling %s Press ctrl+c to save file to %s" % (root_url, file_name)
+	print(f"Crawling {root_url} Press ctrl+c to save file to {file_name}")
 
 	try:
 		# Continually loop until user stops execution
@@ -74,18 +74,18 @@ def main(argv):
 		write_out(found_keywords, append, file_name)
 
 	#	If http request returns an error and 
-	except urllib2.HTTPError, err:
+	except urllib2.HTTPError as err:
 		if err.code == 404:
-			print "\n\nError 404: Pastes not found!"
+			print("\n\nError 404: Pastes not found!")
 		elif err.code == 403:
-			print "\n\nError 403: Pastebin is mad at you!"
+			print("\n\nError 403: Pastebin is mad at you!")
 		else:
-			print "\n\nYou\'re on your own on this one! Error code ", err.code
+			print(f"\n\nYou\'re on your own on this one! Error code {err.code}")
 		write_out(found_keywords, append, file_name)
 
 	#	If http request returns an error and 
-	except urllib2.URLError, err:
-		print "\n\nYou\'re on your own on this one! Error code ", err
+	except urllib2.URLError as err:
+		print (f'\n\nYou\'re on your own on this one! Error code {err}')
 		write_out(found_keywords, append, file_name)
 
 
@@ -101,9 +101,9 @@ def write_out(found_keywords, append, file_name):
 
 		for paste in found_keywords:
 			f.write(paste)
-		print "\n"
+		print("\n")
 	else:
-		print "\n\nNo relevant pastes found, exiting\n\n"
+		print("\n\nNo relevant pastes found, exiting\n\n")
 
 def find_new_pastes(root_html):
 	new_pastes = []
@@ -148,13 +148,13 @@ def initialize_options(argv):
 	try:
 		opts, args = getopt.getopt(argv,"h:k:o:t:n:m:a")
 	except getopt.GetoptError:
-		print 'pwnbin.py -k <keyword1>,<keyword2>,<keyword3>..... -o <outputfile>'
+		print('pwnbin.py -k <keyword1>,<keyword2>,<keyword3>..... -o <outputfile>')
 		sys.exit(2)
 
 	for opt, arg in opts:
 
 		if opt == '-h':
-			print 'pwnbin.py -k <keyword1>,<keyword2>,<keyword3>..... -o <outputfile>'
+			print('pwnbin.py -k <keyword1>,<keyword2>,<keyword3>..... -o <outputfile>')
 			sys.exit()
 		elif opt == '-a':
 			append = True
@@ -166,20 +166,20 @@ def initialize_options(argv):
 			try:
 				run_time = int(arg)
 			except ValueError:
-				print "Time must be an integer representation of seconds."
+				print("Time must be an integer representation of seconds.")
 				sys.exit()
 		elif opt == '-m':
 			try:
 				match_total = int(arg)
 			except ValueError:
-				print "Number of matches must be an integer."
+				print("Number of matches must be an integer.")
 				sys.exit()
 
 		elif opt == '-n':
 			try:
 				crawl_total = int(arg)
 			except ValueError:
-				print "Number of total crawled pastes must be an integer."
+				print("Number of total crawled pastes must be an integer.")
 				sys.exit()
 
 	return file_name, keywords, append, run_time, match_total, crawl_total
