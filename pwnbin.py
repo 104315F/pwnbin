@@ -12,8 +12,7 @@ def main(argv):
 	root_url 								= 'http://pastebin.com'
 	raw_url 								= 'http://pastebin.com/raw/'
 	regex_proxie 							= '\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b:\\d{2,5}'
-	main_proxy 								= ""
-	file_name, append, timeout, main_proxy = initialize_options(argv)
+	file_name, append, timeout, main_proxy, use_proxy = initialize_options(argv)
 
 	print(f"Crawling {root_url} Press ctrl+c to save file to {file_name}")
 
@@ -22,7 +21,7 @@ def main(argv):
 		while True:
 
 			#	Get pastebin home page html
-			root_html = BeautifulSoup(fetch_page(root_url, main_proxy), 'html.parser')
+			root_html = BeautifulSoup(fetch_page(root_url, main_proxy, use_proxy), 'html.parser')
 			
 			#	For each paste in the public pastes section of home page
 			for paste in find_new_pastes(root_html):
@@ -36,7 +35,7 @@ def main(argv):
 					
 					#	Add the pastes url to found_proxies if it matches the regex
 					raw_paste = raw_url+paste
-					found_proxies = find_regex(raw_paste, found_proxies, regex_proxie, main_proxy)
+					found_proxies = find_regex(raw_paste, found_proxies, regex_proxie, main_proxy, use_proxy)
 
 			# Enter the timeout
 			time_waited = 30
@@ -100,17 +99,20 @@ def find_new_pastes(root_html):
 
 	return new_pastes
 	
-def find_regex(raw_url, found_proxies, regex, proxy):
-	found_proxies += re.findall(regex, fetch_page(raw_url, proxy))
+def find_regex(raw_url, found_proxies, regex, proxy, use_proxy):
+	found_proxies += re.findall(regex, fetch_page(raw_url, proxy, use_proxy))
 	return found_proxies
 
-def fetch_page(page, proxy):
-	proxyDict = { 
-				  "http"  : "http://" + proxy, 
-				  "https" : "https://" + proxy, 
-				  "ftp"   : "ftp://" + proxy
-				}
-	return requests.get(page, timeout = 30, proxies=proxyDict).text
+def fetch_page(page, proxy, use_proxy):
+	if use_proxy :
+		proxyDict = { 
+					  "http"  : "http://" + proxy, 
+					  "https" : "https://" + proxy, 
+					  "ftp"   : "ftp://" + proxy
+					}
+		return requests.get(page, timeout = 30, proxies=proxyDict).text
+	else:
+		return requests.get(page, timeout = 30).text
 
 def initialize_options(argv):
 	file_name 			= 'log.txt'
@@ -118,7 +120,8 @@ def initialize_options(argv):
 	timeout 			= 0
 	match_total			= None
 	crawl_total	 		= None
-	main_proxy			= "127.0.0.1"
+	main_proxy			= ""
+	use_proxy = False
 
 	try:
 		opts, args = getopt.getopt(argv,"h:o:t:p:a")
@@ -135,6 +138,7 @@ def initialize_options(argv):
 			append = True
 		elif opt == "-p":
 			main_proxy = arg
+			use_proxy = True
 		elif opt == "-o":
 			file_name = arg
 		elif opt == "-t":
@@ -144,7 +148,7 @@ def initialize_options(argv):
 				print("Time must be an integer representation of seconds.")
 				sys.exit()
 
-	return file_name, append, timeout, main_proxy
+	return file_name, append, timeout, main_proxy, use_proxy
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
