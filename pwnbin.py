@@ -1,5 +1,5 @@
 import time
-import urllib2
+import requests
 import datetime
 import sys, getopt
 from bs4 import BeautifulSoup
@@ -129,13 +129,7 @@ def find_keywords(raw_url, found_keywords, keywords):
 	return found_keywords
 
 def fetch_page(page):
-	response = urllib2.urlopen(page)
-	if response.info().get('Content-Encoding') == 'gzip':
-		response_buffer = StringIO(response.read())
-		unzipped_content = gzip.GzipFile(fileobj=response_buffer)
-		return unzipped_content.read()
-	else:
-		return response.read()
+	return requests.get(page).text
 
 def initialize_options(argv):
 	keywords 			= ['ssh', 'pass', 'key', 'token']
