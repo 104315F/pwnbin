@@ -7,15 +7,13 @@ import re
 
 def main(argv):
 	length 									= 0
-	time_out 								= False
 	found_proxies							= []
 	paste_list 								= set([])
 	root_url 								= 'http://pastebin.com'
 	raw_url 								= 'http://pastebin.com/raw/'
-	start_time								= datetime.datetime.now()
 	regex_proxie 							= '\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b:\\d{2,5}'
 	main_proxy 								= ""
-	file_name, append, run_time, match_total, crawl_total, main_proxy = initialize_options(argv)
+	file_name, append, timeout, main_proxy = initialize_options(argv)
 
 	print(f"Crawling {root_url} Press ctrl+c to save file to {file_name}")
 
@@ -40,33 +38,11 @@ def main(argv):
 					raw_paste = raw_url+paste
 					found_proxies = find_regex(raw_paste, found_proxies, regex_proxie, main_proxy)
 
-				else:
-
-					#	If keywords are not found enter time_out
-					time_out = True
-
-			# Enter the timeout 
-			time.sleep(10)
-
-			sys.stdout.write("\rCrawled total of %d Pastes, Keyword matches %d" % (len(paste_list), len(found_proxies)))
+			# Enter the timeout
+			time_waited = 30
+			sys.stdout.write("\rCrawled total of %d Pastes, Keyword matches %d, waiting %d seconds before next check." % (len(paste_list), len(found_proxies), time_waited))
+			time.sleep(time_waited)
 			sys.stdout.flush()
-
-			if run_time and (start_time + datetime.timedelta(seconds=run_time)) < datetime.datetime.now():
-				sys.stdout.write("\n\nReached time limit, Found %d matches." % len(found_proxies))
-				write_out(found_proxies, append, file_name)
-				sys.exit()
-
-			# Exit if surpassed specified match timeout 
-			if match_total and len(found_proxies) >= match_total:
-				sys.stdout.write("\n\nReached match limit, Found %d matches." % len(found_proxies))
-				write_out(found_proxies, append, file_name)
-				sys.exit()
-
-			# Exit if surpassed specified crawl total timeout 
-			if crawl_total and len(paste_list) >= crawl_total:
-				sys.stdout.write("\n\nReached total crawled Pastes limit, Found %d matches." % len(found_proxies))
-				write_out(found_proxies, append, file_name)
-				sys.exit()
 
 	# 	On keyboard interupt
 	except KeyboardInterrupt:
@@ -89,10 +65,10 @@ def main(argv):
 	
 	#	Proxy problem
 	except requests.Timeout as err:
-		print(f"Timeout")
+		print(f"\n\nTimeout")
 		write_out(found_proxies, append, file_name)
-	except requests.ProxyError as err:
-		print(f"ProxyError")
+	except requests.exceptions.ProxyError as err:
+		print(f"\n\nProxyError")
 		write_out(found_proxies, append, file_name)
 
 
@@ -139,21 +115,21 @@ def fetch_page(page, proxy):
 def initialize_options(argv):
 	file_name 			= 'log.txt'
 	append 				= False
-	run_time 			= 0
+	timeout 			= 0
 	match_total			= None
 	crawl_total	 		= None
 	main_proxy			= "127.0.0.1"
 
 	try:
-		opts, args = getopt.getopt(argv,"h:o:t:n:m:a:p:")
+		opts, args = getopt.getopt(argv,"h:o:t:p:a")
 	except getopt.GetoptError:
-		print('pwnbin.py -p <proxy:port> -o <outputfile>')
+		print('pwnbin.py -p <proxy:port> -o <outputfile> -t <timeout for requests> -a (append to file)')
 		sys.exit(2)
 
 	for opt, arg in opts:
 
 		if opt == '-h':
-			print('pwnbin.py -k <keyword1>,<keyword2>,<keyword3>..... -o <outputfile>')
+			print('pwnbin.py -p <proxy:port> -o <outputfile> -t <timeout for requests> -a (append to file)')
 			sys.exit()
 		elif opt == '-a':
 			append = True
@@ -163,25 +139,12 @@ def initialize_options(argv):
 			file_name = arg
 		elif opt == "-t":
 			try:
-				run_time = int(arg)
+				timeout = int(arg)
 			except ValueError:
 				print("Time must be an integer representation of seconds.")
 				sys.exit()
-		elif opt == '-m':
-			try:
-				match_total = int(arg)
-			except ValueError:
-				print("Number of matches must be an integer.")
-				sys.exit()
 
-		elif opt == '-n':
-			try:
-				crawl_total = int(arg)
-			except ValueError:
-				print("Number of total crawled pastes must be an integer.")
-				sys.exit()
-
-	return file_name, append, run_time, match_total, crawl_total, main_proxy
+	return file_name, append, timeout, main_proxy
 
 if __name__ == "__main__":
 	main(sys.argv[1:])
