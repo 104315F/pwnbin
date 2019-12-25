@@ -3,8 +3,6 @@ import requests
 import datetime
 import sys, getopt
 from bs4 import BeautifulSoup
-from StringIO import StringIO
-import gzip
 
 def main(argv):
 
