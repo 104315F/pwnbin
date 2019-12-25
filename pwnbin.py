@@ -140,9 +140,10 @@ def initialize_options(argv):
 	run_time 			= 0
 	match_total			= None
 	crawl_total	 		= None
+	main_proxy			= "127.0.0.1"
 
 	try:
-		opts, args = getopt.getopt(argv,"h:k:o:t:n:m:a")
+		opts, args = getopt.getopt(argv,"h:k:o:t:n:m:a:p:")
 	except getopt.GetoptError:
 		print('pwnbin.py -k <keyword1>,<keyword2>,<keyword3>..... -o <outputfile>')
 		sys.exit(2)
