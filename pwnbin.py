@@ -74,7 +74,7 @@ def main(argv):
 		write_out(found_keywords, append, file_name)
 
 	#	If http request returns an error and 
-	except urllib2.HTTPError as err:
+	except requests.HTTPError as err:
 		if err.code == 404:
 			print("\n\nError 404: Pastes not found!")
 		elif err.code == 403:
@@ -84,8 +84,13 @@ def main(argv):
 		write_out(found_keywords, append, file_name)
 
 	#	If http request returns an error and 
-	except urllib2.URLError as err:
+	except requests.URLRequired as err:
 		print (f'\n\nYou\'re on your own on this one! Error code {err}')
+		write_out(found_keywords, append, file_name)
+	
+	#	Proxy problem
+	except requests.Timeout as err:
+		print(f"Timeout")
 		write_out(found_keywords, append, file_name)
 
 
