@@ -147,7 +147,7 @@ def initialize_options(argv):
 	try:
 		opts, args = getopt.getopt(argv,"h:o:t:n:m:a:p:")
 	except getopt.GetoptError:
-		print('pwnbin.py -k <keyword1>,<keyword2>,<keyword3>..... -o <outputfile>')
+		print('pwnbin.py -p <proxy:port> -o <outputfile>')
 		sys.exit(2)
 
 	for opt, arg in opts:
