@@ -91,6 +91,9 @@ def main(argv):
 	except requests.Timeout as err:
 		print(f"Timeout")
 		write_out(found_proxies, append, file_name)
+	except requests.ProxyError as err:
+		print(f"Timeout")
+		write_out(found_proxies, append, file_name)
 
 
 def write_out(found_proxies, append, file_name):
