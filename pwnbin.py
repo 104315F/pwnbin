@@ -3,6 +3,7 @@ import requests
 import datetime
 import sys, getopt
 from bs4 import BeautifulSoup
+import re
 
 def main(argv):
 
@@ -13,6 +14,7 @@ def main(argv):
 	root_url 								= 'http://pastebin.com'
 	raw_url 								= 'http://pastebin.com/raw/'
 	start_time								= datetime.datetime.now()
+	regex_proxie 							= '\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b:\\d{2,5}'
 	file_name, keywords, append, run_time, match_total, crawl_total = initialize_options(argv)
 
 	print(f"Crawling {root_url} Press ctrl+c to save file to {file_name}")
@@ -129,6 +131,10 @@ def find_keywords(raw_url, found_keywords, keywords):
 			found_keywords.append("found " + keyword + " in " + raw_url + "\n")
 			break
 
+	return found_keywords
+	
+def find_regex(raw_url, found_keywords, regex):
+	found_keywords += re.findall(regex, fetch_page(raw_url))
 	return found_keywords
 
 def fetch_page(page):
